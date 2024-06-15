@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Text Encryptor/Decryptor</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="encryption.js"></script>
+  <style>
+    /* Basic styling for appearance */
+    textarea { width: 300px; height: 100px; }
+  </style>
+</head>
+<body>
+  <h2>Text Encryptor/Decryptor</h2>
+  <textarea id="inputText" placeholder="Enter text"></textarea><br>
+  <label for="secretKey">Secret Key:</label>
+  <input type="password" id="secretKey"><br><br>
+  <button onclick="encryptText()">Encrypt</button>
+  <button onclick="decryptText()">Decrypt</button><br><br>
+  <textarea id="outputText" placeholder="Result"></textarea>
+</body>
+</html
