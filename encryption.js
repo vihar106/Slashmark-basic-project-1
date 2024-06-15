@@ -1,36 +1,45 @@
-const crypto = require('crypto');
-require('dotenv').config();
+function encryptText() {
+  const inputText = document.getElementById("inputText").value;
+  const secretKey = document.getElementById("secretKey").value;
 
-const key = process.env.ENCRYPTION_KEY;
+  // Generate a random initialization vector (IV)
+  const iv = CryptoJS.lib.WordArray.random(16);
 
-if (!key || key.length !== 32) {
-  throw new Error('ENCRYPTION_KEY environment variable must be 32 characters long');
+  // Encrypt using AES-256 (strong algorithm) with CBC mode
+  const encrypted = CryptoJS.AES.encrypt(inputText, secretKey, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+  });
+
+  // Convert IV to base64 for better storage
+  const ivBase64 = iv.toString(CryptoJS.enc.Base64);
+
+  // Include the IV in the output for correct decryption
+  document.getElementById("outputText").value = encrypted + ":" + ivBase64;
 }
 
-function encrypt(text) {
-  if (typeof text !== 'string' || text.length === 0) {
-    throw new TypeError('The "text" argument must be a non-empty string');
-  }
+function decryptText() {
+  const encryptedTextWithIv = document.getElementById("outputText").value;
+  const secretKey = document.getElementById("secretKey").value;
 
-  const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
-  let encrypted = cipher.update(text, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return iv.toString('hex') + ':' + encrypted;
-}
-
-function decrypt(text) {
-  const parts = text.split(':');
+  // Split the encrypted text and IV
+  const parts = encryptedTextWithIv.split(":");
   if (parts.length !== 2) {
-    throw new Error('Invalid encrypted text format');
+    alert("Invalid encrypted text format.");
+    return;
   }
 
-  const iv = Buffer.from(parts[0], 'hex');
-  const encryptedText = Buffer.from(parts[1], 'hex');
-  const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
-  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
-}
+  const encrypted = parts[0];
+  const ivBase64 = parts[1]; // IV is now base64 encoded
 
-module.exports = { encrypt, decrypt };
+  // Convert IV back from base64 to WordArray
+  const iv = CryptoJS.enc.Base64.parse(ivBase64);
+
+  // Decrypt using AES-256 with CBC mode
+  const decrypted = CryptoJS.AES.decrypt(encrypted, secretKey, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+  });
+
+  document.getElementById("outputText").value = decrypted.toString(CryptoJS.enc.Utf8);
+}
